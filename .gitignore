@@ -37,3 +37,6 @@ ehthumbs.db
 Thumbs.db
 spec.md
 .idea
+slackr.svg
+.pytest_cache
+__pycache__
