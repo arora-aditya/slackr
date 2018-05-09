@@ -3,4 +3,4 @@ start:
 	open -a Terminal "`sh client.sh`"
 
 test:
-	for f in *_test.py; do python "$f"; done
+	ls tests/*_test.py|xargs -n 1 -P 3 python
