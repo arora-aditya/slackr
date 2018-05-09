@@ -14,3 +14,13 @@ SERVER_CREATE_REQUIRES_ARGUMENT = \
   "/create command must be followed by the name of a channel to create"
 SERVER_CLIENT_NOT_IN_CHANNEL = \
   "Not currently in any channel. Must join a channel before sending messages."
+def printError(e, newline = False):
+    if newline:
+        print()
+    print('\x1b[1;31;40m' + 'ERROR: \t' + str(e) + '\x1b[0m')
+def printLog(log, newline = False):
+    if newline:
+        print()
+    print('\x1b[1;32;40m' + 'LOG: \t' + log + '\x1b[0m')
+def printMsg(msg):
+    print('\x1b[1;33;40m' + 'MSG: \t' + msg + '\x1b[0m')
