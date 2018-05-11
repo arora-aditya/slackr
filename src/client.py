@@ -31,11 +31,11 @@ class Client(object):
         sys.stdout.write(CLIENT_MESSAGE_PREFIX)
         sys.stdout.flush()
 
-        while 1:
+        while True:
 
-            ready_to_read, ready_to_write, in_error = select.select(self.FD_LIST, [], [])
+            readable, writeable, exceptioning = select.select(self.FD_LIST, [], [])
 
-            for fd in ready_to_read:
+            for fd in readable:
                 if fd == self.socket:
                     data = self.socket.recv(MESSAGE_LENGTH)
                     if not data:

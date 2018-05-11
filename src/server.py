@@ -85,9 +85,6 @@ class Server(object):
             self.socket.close()
             sys.exit()
 
-    def getData():
-        return 0
-
     def send(self, message, sock):
         try:
             sock.send(message.encode().ljust(MESSAGE_LENGTH))
