@@ -81,7 +81,8 @@ class Client(object):
 
 if __name__ == "__main__":
     args = sys.argv
-    if len(args) != 4:
-        print "Please supply a name, server address, and port."
-        sys.exit()
+    if len(args) <= 4:
+        name, address, port = "NoName", "localhost", 8000
+    else:
+        name, address, port = args[1], args[2], args[3]
     client = Client(args[1], args[2], args[3])

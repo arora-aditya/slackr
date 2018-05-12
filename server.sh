@@ -1,1 +1,1 @@
-python3 server.py 8000
+python3 src/server.py 8000
