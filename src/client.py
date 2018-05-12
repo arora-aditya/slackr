@@ -85,4 +85,4 @@ if __name__ == "__main__":
         name, address, port = "NoName", "localhost", 8000
     else:
         name, address, port = args[1], args[2], args[3]
-    client = Client(args[1], args[2], args[3])
+    client = Client(name, address, port)
