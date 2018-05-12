@@ -19,7 +19,7 @@ class Client(object):
             sys.exit()
 
         try:
-            self.socket.send(self.name.ljust(MESSAGE_LENGTH))
+            self.socket.send(self.name.ljust(MESSAGE_LENGTH).encode())
         except Exception as e:
             sys.stdout.write(CLIENT_WIPE_ME)
             sys.stdout.write('\r' + CLIENT_SERVER_DISCONNECTED.format(self.address, self.port) + '\n')
@@ -62,15 +62,16 @@ class Client(object):
                                 output_str = data
 
                         if output_str:
+                            # print(output_str, output_str.decode())
                             output_str = output_str.rstrip()
                             sys.stdout.write(CLIENT_WIPE_ME)
-                            sys.stdout.write('\r'+output_str+'\n')
+                            sys.stdout.write('\r'+output_str.decode()+'\n')
                             sys.stdout.write(CLIENT_MESSAGE_PREFIX)
                             sys.stdout.flush()
                 else:
                     message = sys.stdin.readline()
                     try:
-                        self.socket.send(message.ljust(MESSAGE_LENGTH))
+                        self.socket.send(message.ljust(MESSAGE_LENGTH).encode())
                     except Exception as e:
                         sys.stdout.write(CLIENT_WIPE_ME)
                         sys.stdout.write('\r' + CLIENT_SERVER_DISCONNECTED.format(self.address, self.port) + '\n')
@@ -81,8 +82,8 @@ class Client(object):
 
 if __name__ == "__main__":
     args = sys.argv
-    if len(args) <= 4:
-        name, address, port = "NoName", "localhost", 8000
+    if len(args) < 4:
+        name, address, port = "NoName", "192.168.2.24", 8000
     else:
         name, address, port = args[1], args[2], args[3]
     client = Client(name, address, port)

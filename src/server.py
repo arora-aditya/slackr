@@ -11,9 +11,9 @@ class Server(object):
     def __init__(self, port):
         self.socket = socket.socket()
         self.port = int(port)
-        self.socket.bind(("localhost", self.port))
+        self.socket.bind(('', self.port))
         self.socket.listen(5)
-        printLog('Starting server, Ctrl+C to stop')
+        printLog('Starting server at {}, Ctrl+C to stop'.format(''))
         self.channels = {}
         self.clients = {}
         self.SOCKET_LIST = [self.socket]
@@ -31,7 +31,7 @@ class Server(object):
                         self.clients[new_socket.fileno()] = {'name': '', 'channel': '', 'buffer': []}
                     else:
                         try:
-                            data = sock.recv(MESSAGE_LENGTH)
+                            data = sock.recv(MESSAGE_LENGTH).decode()
                             if data:
                                 msg_length = len(data)
                                 output_str = None
@@ -57,21 +57,21 @@ class Server(object):
                                         self.clients[sock.fileno()]['name'] = output_str
                                     else:
                                         name = self.clients.get(sock.fileno(), {}).get('name')
-                                        msg_lst = output_str.split(b' ')
+                                        msg_lst = output_str.split(' ')
                                         # print(msg_lst)
-                                        if msg_lst[0].startswith(b'/'):
-                                            if msg_lst[0].startswith(b'/join'):
+                                        if msg_lst[0].startswith('/'):
+                                            if msg_lst[0].startswith('/join'):
                                                 self.join_channel(msg_lst, sock)
-                                            elif msg_lst[0].startswith(b'/create'):
+                                            elif msg_lst[0].startswith('/create'):
                                                 self.create_channel(msg_lst, sock)
-                                            elif msg_lst[0].startswith(b'/list'):
+                                            elif msg_lst[0].startswith('/list'):
                                                 self.list_channel(sock)
                                             else:
                                                 self.send(SERVER_INVALID_CONTROL_MESSAGE.format(output_str), sock)
                                         else:
                                             channel = self.clients.get(sock.fileno(), {}).get('channel')
                                             if channel:
-                                                self.broadcast("[{}] {}".format(name, output_str), sock, self.channels.get(channel, []))
+                                                self.broadcast("[{}] {}".format(name, output_str), sock, self.channels.get(channel, []), channel)
                                             else:
                                                 self.send(SERVER_CLIENT_NOT_IN_CHANNEL, sock)
                             else:
@@ -82,6 +82,7 @@ class Server(object):
             self.socket.close()
         except KeyboardInterrupt:
             printLog("Caught interrupt, stopping server", True)
+            # self.socket.shutdown(socket.SHUT_RDWR)
             self.socket.close()
             sys.exit()
 
@@ -91,8 +92,8 @@ class Server(object):
         except Exception as e:
             self.remove_socket(sock)
 
-    def broadcast(self, message, client_socket, sock_lst=None):
-        printMsg(message)
+    def broadcast(self, message, client_socket, sock_lst=None, channel=None):
+        printMsg(channel, message)
         if sock_lst is not None:
             sock_lst = self.SOCKET_LIST
         for sock in sock_lst:
@@ -104,7 +105,7 @@ class Server(object):
         if channel:
             name = self.clients.get(sock.fileno(), {}).get('name')
             self.channels.get(channel, []).remove(sock)
-            self.broadcast(SERVER_CLIENT_LEFT_CHANNEL.format(name), sock, self.channels.get(channel, []))
+            self.broadcast(SERVER_CLIENT_LEFT_CHANNEL.format(name), sock, self.channels.get(channel, []), channel)
         self.clients.pop(sock.fileno(), None)
         if sock in self.SOCKET_LIST:
             self.SOCKET_LIST.remove(sock)
@@ -119,10 +120,10 @@ class Server(object):
                 name = self.clients.get(sock.fileno(), {}).get('name', '')
                 prev_channel = self.clients.get(sock.fileno(), {}).get('channel', '')
                 if prev_channel:
-                    self.broadcast(SERVER_CLIENT_LEFT_CHANNEL.format(name), sock, self.channels.get(prev_channel, []))
+                    self.broadcast(SERVER_CLIENT_LEFT_CHANNEL.format(name), sock, self.channels.get(prev_channel, []), channel)
                     self.channels.get(prev_channel, []).remove(sock)
 
-                self.broadcast(SERVER_CLIENT_JOINED_CHANNEL.format(name), sock, self.channels.get(channel, []))
+                self.broadcast(SERVER_CLIENT_JOINED_CHANNEL.format(name), sock, self.channels.get(channel, []), channel)
                 self.clients.get(sock.fileno(), {})['channel'] = channel
                 self.channels[channel].append(sock)
         else:
@@ -137,7 +138,7 @@ class Server(object):
                 name = self.clients.get(sock.fileno(), {}).get('name', '')
                 prev_channel = self.clients.get(sock.fileno(), {}).get('channel', '')
                 if prev_channel:
-                    self.broadcast(SERVER_CLIENT_LEFT_CHANNEL.format(name), sock, self.channels.get(prev_channel, []))
+                    self.broadcast(SERVER_CLIENT_LEFT_CHANNEL.format(name), sock, self.channels.get(prev_channel, []), channel)
                     self.channels.get(prev_channel, []).remove(sock)
 
                 self.clients.get(sock.fileno(), {})['channel'] = channel

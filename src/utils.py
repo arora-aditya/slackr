@@ -22,5 +22,5 @@ def printLog(log, newline = False):
     if newline:
         print()
     print('\x1b[1;32;40m' + 'LOG: \t' + log + '\x1b[0m')
-def printMsg(msg):
-    print('\x1b[1;33;40m' + 'MSG: \t' + msg + '\x1b[0m')
+def printMsg(channel, msg):
+    print('\x1b[1;33;40m' + 'MSG: \t['+ channel + ']\t' + msg + '\x1b[0m')
