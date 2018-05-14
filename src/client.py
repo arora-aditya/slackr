@@ -30,54 +30,56 @@ class Client(object):
 
         sys.stdout.write(CLIENT_MESSAGE_PREFIX)
         sys.stdout.flush()
+        try:
+            while True:
 
-        while True:
+                readable, writeable, exceptioning = select.select(self.FD_LIST, [], [])
 
-            readable, writeable, exceptioning = select.select(self.FD_LIST, [], [])
-
-            for fd in readable:
-                if fd == self.socket:
-                    data = self.socket.recv(MESSAGE_LENGTH)
-                    if not data:
-                        sys.stdout.write(CLIENT_WIPE_ME)
-                        sys.stdout.write('\r' + CLIENT_SERVER_DISCONNECTED.format(self.address, self.port) + '\n')
-                        sys.exit()
-                    else:
-                        msg_length = len(data)
-                        output_str = ''
-                        if self.buffer:
-                            cached_msg = self.buffer.pop()
-                            cached_len = len(cached_msg)
-                            if cached_len + msg_length > MESSAGE_LENGTH:
-                                output_str = cached_msg + data[:MESSAGE_LENGTH-cached_len]
-                                self.buffer.append(data[MESSAGE_LENGTH-cached_len:])
-                            elif cached_len + msg_length == MESSAGE_LENGTH:
-                                output_str = cached_msg + data
-                            else:
-                                self.buffer.append(cached_msg + data)
-                        else:
-                            if msg_length < MESSAGE_LENGTH:
-                                self.buffer.append(data)
-                            else:
-                                output_str = data
-
-                        if output_str:
-                            # print(output_str, output_str.decode())
-                            output_str = output_str.rstrip()
+                for fd in readable:
+                    if fd == self.socket:
+                        data = self.socket.recv(MESSAGE_LENGTH)
+                        if not data:
                             sys.stdout.write(CLIENT_WIPE_ME)
-                            sys.stdout.write('\r'+output_str.decode()+'\n')
-                            sys.stdout.write(CLIENT_MESSAGE_PREFIX)
-                            sys.stdout.flush()
-                else:
-                    message = sys.stdin.readline()
-                    try:
-                        self.socket.send(message.ljust(MESSAGE_LENGTH).encode())
-                    except Exception as e:
-                        sys.stdout.write(CLIENT_WIPE_ME)
-                        sys.stdout.write('\r' + CLIENT_SERVER_DISCONNECTED.format(self.address, self.port) + '\n')
-                        sys.exit()
-                    sys.stdout.write(CLIENT_MESSAGE_PREFIX)
-                    sys.stdout.flush()
+                            sys.stdout.write('\r' + CLIENT_SERVER_DISCONNECTED.format(self.address, self.port) + '\n')
+                            sys.exit()
+                        else:
+                            msg_length = len(data)
+                            output_str = ''
+                            if self.buffer:
+                                cached_msg = self.buffer.pop()
+                                cached_len = len(cached_msg)
+                                if cached_len + msg_length > MESSAGE_LENGTH:
+                                    output_str = cached_msg + data[:MESSAGE_LENGTH-cached_len]
+                                    self.buffer.append(data[MESSAGE_LENGTH-cached_len:])
+                                elif cached_len + msg_length == MESSAGE_LENGTH:
+                                    output_str = cached_msg + data
+                                else:
+                                    self.buffer.append(cached_msg + data)
+                            else:
+                                if msg_length < MESSAGE_LENGTH:
+                                    self.buffer.append(data)
+                                else:
+                                    output_str = data
+
+                            if output_str:
+                                # print(output_str, output_str.decode())
+                                output_str = output_str.rstrip()
+                                sys.stdout.write(CLIENT_WIPE_ME)
+                                sys.stdout.write('\r'+output_str.decode()+'\n')
+                                sys.stdout.write(CLIENT_MESSAGE_PREFIX)
+                                sys.stdout.flush()
+                    else:
+                        message = sys.stdin.readline()
+                        try:
+                            self.socket.send(message.ljust(MESSAGE_LENGTH).encode())
+                        except Exception as e:
+                            sys.stdout.write(CLIENT_WIPE_ME)
+                            sys.stdout.write('\r' + CLIENT_SERVER_DISCONNECTED.format(self.address, self.port) + '\n')
+                            sys.exit()
+                        sys.stdout.write(CLIENT_MESSAGE_PREFIX)
+                        sys.stdout.flush()
+        except KeyboardInterrupt:
+            print('\nExiting, see you soon ' + self.name)
 
 
 if __name__ == "__main__":
