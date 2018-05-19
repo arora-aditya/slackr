@@ -19,6 +19,6 @@ Control statements:
 `python3 src/client.py <your_name> <hostname:optional> <port_number:optional>`
 
 ## Current Limitations:
-- Max message size is limited to 200 characters:
+- Max message size is limited to 200 characters
 [Expected fix: Use a unique key string to detect when messages are completely sent from clients]
 - Limited to 5 open sockets for now, can be extended later to accommodate for more users
