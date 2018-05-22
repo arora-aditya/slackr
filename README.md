@@ -22,3 +22,6 @@ Control statements:
 - Max message size is limited to 200 characters
 [Expected fix: Use a unique key string to detect when messages are completely sent from clients]
 - Limited to 5 open sockets for now, can be extended later to accommodate for more users
+
+## Quick Demo:
+![](https://github.com/arora-aditya/slackr/blob/master/demo.gif)
